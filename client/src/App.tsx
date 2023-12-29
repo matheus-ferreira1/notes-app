@@ -1,7 +1,11 @@
+import Header from "./components/header";
+import NotesContainer from "./components/notes-container";
+
 function App() {
   return (
     <>
-      <h1>teste</h1>
+      <Header />
+      <NotesContainer />
     </>
   );
 }
