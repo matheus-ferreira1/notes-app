@@ -1,10 +1,8 @@
-import CreateForm from "./components/create-form";
-
 function App() {
   return (
-    <div className="container">
-      <CreateForm />
-    </div>
+    <>
+      <h1>teste</h1>
+    </>
   );
 }
 
