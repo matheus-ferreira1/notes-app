@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
+
 import NoteCard from "./note-card";
-import { testNotes } from "@/contants/notes";
 
 export interface NoteType {
   id?: string;
@@ -10,30 +10,30 @@ export interface NoteType {
 }
 
 const NotesContainer: FC = () => {
-  const [notes, setNotes] = useState<NoteType[] | null>(testNotes);
+  const [notes, setNotes] = useState<NoteType[] | []>([]);
   const [selectedNote, setselectedNote] = useState<NoteType | null>({
     title: "",
     content: "",
     priority: "",
   });
 
-  // useEffect(() => {
-  //   const fetchNotes = async () => {
-  //     try {
-  //       const res = await fetch("http://localhost:4000/notes");
+  useEffect(() => {
+    const fetchNotes = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/notes");
 
-  //       const notes = await res.json();
+        const notes: NoteType[] = await response.json();
 
-  //       setNotes(notes);
-  //     } catch (err) {
-  //       console.log(err);
-  //     }
+        setNotes(notes);
+      } catch (e) {
+        console.log(e);
+      }
+    };
 
-  //     fetchNotes();
-  //   };
-  // }, []);
+    fetchNotes();
+  }, []);
 
-  if (!notes) return <p>There are no notes. Create one now!</p>;
+  if (notes.length <= 0) return <p>There are no notes. Create one now!</p>;
 
   return (
     <div className="container max-w-screen-lg">
