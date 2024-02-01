@@ -3,6 +3,7 @@ import cors from "cors";
 import "dotenv/config";
 
 import { AppError } from "../errors/AppError";
+import { notesRouter } from "../../routes/notes.routes";
 
 const app = express();
 
@@ -11,11 +12,7 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3001;
 
-const testNotes: any = [];
-
-app.get("/api/notes", (req, res) => {
-  res.json(testNotes);
-});
+app.use(notesRouter);
 
 app.use(
   (error: Error, request: Request, response: Response, next: NextFunction) => {
