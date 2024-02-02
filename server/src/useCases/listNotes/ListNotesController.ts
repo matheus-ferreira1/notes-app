@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import { NoteRepository } from "../../repository/note-repository";
+import { NoteRepository } from "../../repository/NoteRepository";
 import { ListNotesUseCase } from "./ListNotesUseCase";
 
 export class ListNotesController {

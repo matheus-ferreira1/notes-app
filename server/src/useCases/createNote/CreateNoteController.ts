@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import { NoteRepository } from "../../repository/note-repository";
+import { NoteRepository } from "../../repository/NoteRepository";
 import { CreateNoteUseCase } from "./CreateNoteUseCase";
 
 export class CreateNoteController {
