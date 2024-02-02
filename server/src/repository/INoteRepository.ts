@@ -12,4 +12,5 @@ export interface INoteRepository {
   listNotes(): Promise<Note[]>;
   createNote(title: string, content: string, priority: string): Promise<Note>;
   delete(note: Note): Promise<void>;
+  update(note: Note): Promise<Note>;
 }

@@ -43,4 +43,19 @@ export class NoteRepository implements INoteRepository {
       },
     });
   }
+
+  async update(note: Note): Promise<Note> {
+    const updatedNote = await prisma.note.update({
+      where: {
+        id: note.id,
+      },
+      data: {
+        title: note.title,
+        content: note.content,
+        priority: note.priority,
+      },
+    });
+
+    return updatedNote;
+  }
 }
