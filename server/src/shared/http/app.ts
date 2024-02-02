@@ -3,7 +3,7 @@ import cors from "cors";
 import "dotenv/config";
 
 import { AppError } from "../errors/AppError";
-import { notesRouter } from "../../routes/notes.routes";
+import { notesRouter } from "../../routes/note.routes";
 
 const app = express();
 
