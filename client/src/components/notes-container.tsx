@@ -1,38 +1,14 @@
-import { FC, useEffect, useState } from "react";
+import { Dispatch, FC, SetStateAction } from "react";
 
 import NoteCard from "./note-card";
+import { NoteType } from "@/App";
 
-export interface NoteType {
-  id?: string;
-  title: string;
-  content: string;
-  priority: string;
+interface INotesContainerProps {
+  notes: NoteType[];
+  setNotes: Dispatch<SetStateAction<[] | NoteType[]>>;
 }
 
-const NotesContainer: FC = () => {
-  const [notes, setNotes] = useState<NoteType[] | []>([]);
-  const [selectedNote, setselectedNote] = useState<NoteType | null>({
-    title: "",
-    content: "",
-    priority: "",
-  });
-
-  useEffect(() => {
-    const fetchNotes = async () => {
-      try {
-        const response = await fetch("http://localhost:3000/api/notes");
-
-        const notes: NoteType[] = await response.json();
-
-        setNotes(notes);
-      } catch (e) {
-        console.log(e);
-      }
-    };
-
-    fetchNotes();
-  }, []);
-
+const NotesContainer: FC<INotesContainerProps> = ({ notes, setNotes }) => {
   if (notes.length <= 0) return <p>There are no notes. Create one now!</p>;
 
   return (
@@ -41,7 +17,7 @@ const NotesContainer: FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {notes?.map((note) => (
-          <NoteCard note={note} />
+          <NoteCard key={note.id} note={note} setNotes={setNotes} />
         ))}
       </div>
     </div>
