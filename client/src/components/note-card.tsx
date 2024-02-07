@@ -68,20 +68,21 @@ const NoteCard: React.FC<NoteCardProps> = ({ note, setNotes }) => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(updatedNote),
+          body: JSON.stringify({
+            title: updatedNote.title,
+            content: updatedNote.content,
+            priority: updatedNote.priority,
+          }),
         }
       );
-      console.log(response, "response");
 
-      if (response) {
-        const updatedNotes = await response.json();
+      const updatedNotes = await response.json();
 
-        setNotes((prev) => [...prev, updatedNotes]);
-      }
+      setNotes((prev) => [...prev, updatedNotes]);
+      setIsDialogOpen(false);
     } catch (e) {
-      console.log(e, "Erro ao atualizar a nota");
+      console.log("Erro ao atualizar a nota", e);
     }
-    setIsDialogOpen(false);
   };
 
   return (

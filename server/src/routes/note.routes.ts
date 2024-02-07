@@ -1,15 +1,11 @@
 import { Router } from "express";
-import { ListNotesController } from "../useCases/listNotes/ListNotesController";
-import { CreateNoteController } from "../useCases/createNote/CreateNoteController";
-import { DeleteNoteController } from "../useCases/deleteNote/DeleteNoteController";
-import { UpdateNoteController } from "../useCases/updateNote/updateNoteController";
+
+import { listNotesController } from "../useCases/listNotes";
+import { createNoteController } from "../useCases/createNote";
+import { deleteNoteController } from "../useCases/deleteNote";
+import { updateNoteController } from "../useCases/updateNote";
 
 const notesRouter = Router();
-
-const listNotesController = new ListNotesController();
-const createNoteController = new CreateNoteController();
-const deleteNoteController = new DeleteNoteController();
-const updateNoteController = new UpdateNoteController();
 
 notesRouter.get("/", (req, res) => {
   res.json({ message: "notes router get test" });

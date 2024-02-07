@@ -4,6 +4,18 @@ import { prisma } from "../db/index";
 import { INoteRepository } from "./INoteRepository";
 
 export class NoteRepository implements INoteRepository {
+  private static instance: NoteRepository;
+
+  private constructor() {}
+
+  public static getInstance(): NoteRepository {
+    if (!NoteRepository.instance) {
+      NoteRepository.instance = new NoteRepository();
+    }
+
+    return NoteRepository.instance;
+  }
+
   async listNotes(): Promise<Note[]> {
     const notes = await prisma.note.findMany();
 

@@ -1,9 +1,9 @@
 import { Note } from "@prisma/client";
 
-import { INoteRepository } from "../../repository/INoteRepository";
+import { NoteRepository } from "../../repository/NoteRepository";
 
 export class ListNotesUseCase {
-  constructor(private notesRepository: INoteRepository) {}
+  constructor(private notesRepository: NoteRepository) {}
 
   async execute(): Promise<Note[]> {
     return this.notesRepository.listNotes();
