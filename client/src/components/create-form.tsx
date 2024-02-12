@@ -1,6 +1,5 @@
-import { Dispatch, FC, SetStateAction, useState } from "react";
+import { FC, useState } from "react";
 
-import { NoteType } from "@/App";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
@@ -21,18 +20,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import api from "@/api";
+import { useNotesStore } from "@/store/notes-store";
+import { useToast } from "./ui/use-toast";
 
-interface CreateFormProps {
-  setNotes: Dispatch<SetStateAction<[] | NoteType[]>>;
-}
-
-const CreateForm: FC<CreateFormProps> = ({ setNotes }) => {
+const CreateForm: FC = () => {
   const [newNote, setNewNote] = useState({
     title: "",
     content: "",
     priority: "",
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const addNote = useNotesStore((state) => state.addNote);
+
+  const { toast } = useToast();
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -49,25 +51,30 @@ const CreateForm: FC<CreateFormProps> = ({ setNotes }) => {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:3000/api/notes", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newNote),
-      });
+      const response = await api.post("/", newNote);
 
-      if (response) {
+      if (response.statusText === "OK") {
+        addNote(newNote);
+
         setNewNote({
           title: "",
           content: "",
           priority: "",
         });
-      }
 
-      setNotes((prev) => [...prev, newNote]);
-      setIsDialogOpen(false);
+        toast({
+          title: "Note added",
+          description: "Your note has been added successfully.",
+        });
+
+        setIsDialogOpen(false);
+      }
     } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "There was an error adding your note.",
+      });
       console.log(err);
     }
   };

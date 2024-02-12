@@ -1,4 +1,4 @@
-import { INoteRepository } from "../../repository/INoteRepository";
+import { NoteRepository } from "../../repository/NoteRepository";
 import { AppError } from "../../shared/errors/AppError";
 
 type UpdateNoteDTO = {
@@ -9,7 +9,7 @@ type UpdateNoteDTO = {
 };
 
 export class UpdateNoteUseCase {
-  constructor(private notesRepository: INoteRepository) {}
+  constructor(private notesRepository: NoteRepository) {}
 
   async execute({
     id,

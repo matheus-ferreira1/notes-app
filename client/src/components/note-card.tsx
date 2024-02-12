@@ -1,7 +1,8 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 
 import { NoteType } from "@/App";
+import { useNotesStore } from "@/store/notes-store";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -30,19 +31,25 @@ import {
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
+import api from "@/api";
+import { useToast } from "./ui/use-toast";
 
 interface NoteCardProps {
   note: NoteType;
-  setNotes: Dispatch<SetStateAction<[] | NoteType[]>>;
 }
 
-const NoteCard: React.FC<NoteCardProps> = ({ note, setNotes }) => {
+const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
   const [updatedNote, setUpdatedNote] = useState({
     title: note.title,
     content: note.content,
     priority: note.priority,
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const { toast } = useToast();
+
+  const addNote = useNotesStore((state) => state.addNote);
+  const deleteNote = useNotesStore((state) => state.removeNote);
 
   const { title, content, priority } = note;
 
@@ -78,10 +85,35 @@ const NoteCard: React.FC<NoteCardProps> = ({ note, setNotes }) => {
 
       const updatedNotes = await response.json();
 
-      setNotes((prev) => [...prev, updatedNotes]);
+      addNote(updatedNotes);
+
       setIsDialogOpen(false);
     } catch (e) {
       console.log("Erro ao atualizar a nota", e);
+    }
+  };
+
+  const handleDeleteNote = async () => {
+    try {
+      const response = await api.delete(`/${note.id}`);
+
+      if (response.statusText === "OK") {
+        deleteNote(note);
+
+        toast({
+          title: "Note deleted",
+          description: "Your note has been deleted successfully.",
+        });
+
+        setIsDialogOpen(false);
+      }
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "There was an error deleting your note.",
+      });
+      console.log(err);
     }
   };
 
@@ -104,7 +136,10 @@ const NoteCard: React.FC<NoteCardProps> = ({ note, setNotes }) => {
                   <Pencil />
                 </button>
               </DialogTrigger>
-              <button className="transition-colors hover:text-red-600">
+              <button
+                className="transition-colors hover:text-red-600"
+                onClick={handleDeleteNote}
+              >
                 <Trash2 />
               </button>
             </div>
