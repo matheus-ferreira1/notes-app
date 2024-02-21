@@ -1,8 +1,15 @@
-import { useState } from "react";
-import { Pencil, Trash2 } from "lucide-react";
+import { FC, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Pencil } from "lucide-react";
 
 import { NoteType } from "@/App";
-import { useNotesStore } from "@/store/notes-store";
+
+import { deleteNote } from "@/api/delete-note";
+import { updateNote } from "@/api/update-note";
+
+import { useToast } from "./ui/use-toast";
+
+import DeleteButton from "./delete-button";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -31,27 +38,22 @@ import {
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
-import api from "@/api";
-import { useToast } from "./ui/use-toast";
 
 interface NoteCardProps {
   note: NoteType;
 }
 
-const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
+const NoteCard: FC<NoteCardProps> = ({ note }) => {
+  const { title, content, priority, id } = note;
   const [updatedNote, setUpdatedNote] = useState({
-    title: note.title,
-    content: note.content,
-    priority: note.priority,
+    id: id,
+    title: title,
+    content: content,
+    priority: priority,
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { toast } = useToast();
-
-  const addNote = useNotesStore((state) => state.addNote);
-  const deleteNote = useNotesStore((state) => state.removeNote);
-
-  const { title, content, priority } = note;
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -64,57 +66,56 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
     });
   };
 
-  const handleUpdateNote = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const queryClient = useQueryClient();
 
-    try {
-      const response = await fetch(
-        `http://localhost:3000/api/notes/${note.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            title: updatedNote.title,
-            content: updatedNote.content,
-            priority: updatedNote.priority,
-          }),
-        }
-      );
-
-      const updatedNotes = await response.json();
-
-      addNote(updatedNotes);
-
+  const deleteMutation = useMutation({
+    mutationFn: deleteNote,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      toast({
+        title: "Note deleted",
+        description: "Your note has been deleted successfully.",
+      });
       setIsDialogOpen(false);
-    } catch (e) {
-      console.log("Erro ao atualizar a nota", e);
-    }
-  };
-
-  const handleDeleteNote = async () => {
-    try {
-      const response = await api.delete(`/${note.id}`);
-
-      if (response.statusText === "OK") {
-        deleteNote(note);
-
-        toast({
-          title: "Note deleted",
-          description: "Your note has been deleted successfully.",
-        });
-
-        setIsDialogOpen(false);
-      }
-    } catch (err) {
+    },
+    onError: (error) => {
       toast({
         variant: "destructive",
         title: "Error",
         description: "There was an error deleting your note.",
       });
-      console.log(err);
-    }
+      console.log(error);
+    },
+  });
+
+  const handleDeleteNote = () => {
+    deleteMutation.mutate(note);
+  };
+
+  const updateMutation = useMutation({
+    mutationFn: updateNote,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      toast({
+        title: "Note updated",
+        description: "Your note has been updated successfully.",
+      });
+      setIsDialogOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "There was an error updating your note.",
+      });
+      console.log(error);
+    },
+  });
+
+  const handleUpdateNote = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    updateMutation.mutate(updatedNote);
   };
 
   return (
@@ -136,12 +137,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
                   <Pencil />
                 </button>
               </DialogTrigger>
-              <button
-                className="transition-colors hover:text-red-600"
-                onClick={handleDeleteNote}
-              >
-                <Trash2 />
-              </button>
+              <DeleteButton handleDeleteNote={handleDeleteNote} note={note} />
             </div>
           </div>
         </CardFooter>

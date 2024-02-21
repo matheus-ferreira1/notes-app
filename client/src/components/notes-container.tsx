@@ -1,5 +1,6 @@
 import { FC } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 
 import { NoteType } from "@/App";
 import { getNotes } from "@/api/get-notes";
@@ -17,9 +18,16 @@ const NotesContainer: FC = () => {
     queryFn: getNotes,
   });
 
-  if (isPending) return <p>Loading...</p>;
+  if (isPending)
+    return (
+      <div className="h-screen w-full flex justify-center items-center">
+        <Loader2 size={40} className="animate-spin" />
+      </div>
+    );
 
   if (isError) return <p>Error: {error.message}</p>;
+
+  if (!notes?.length) return <p>No notes found</p>;
 
   return (
     <div className="container max-w-screen-lg">
