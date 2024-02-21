@@ -6,6 +6,7 @@ import { NoteType } from "@/App";
 import { getNotes } from "@/api/get-notes";
 
 import NoteCard from "./note-card";
+import Spinner from './'
 
 const NotesContainer: FC = () => {
   const {
@@ -20,9 +21,7 @@ const NotesContainer: FC = () => {
 
   if (isPending)
     return (
-      <div className="h-screen w-full flex justify-center items-center">
-        <Loader2 size={40} className="animate-spin" />
-      </div>
+      <Spinner />
     );
 
   if (isError) return <p>Error: {error.message}</p>;
