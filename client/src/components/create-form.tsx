@@ -1,4 +1,9 @@
 import { FC, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+import { createNote } from "@/api/create-note";
+
+import { useToast } from "./ui/use-toast";
 
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
@@ -20,9 +25,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import api from "@/api";
-import { useNotesStore } from "@/store/notes-store";
-import { useToast } from "./ui/use-toast";
 
 const CreateForm: FC = () => {
   const [newNote, setNewNote] = useState({
@@ -31,8 +33,6 @@ const CreateForm: FC = () => {
     priority: "",
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const addNote = useNotesStore((state) => state.addNote);
 
   const { toast } = useToast();
 
@@ -47,36 +47,32 @@ const CreateForm: FC = () => {
     });
   };
 
-  const handleAddNote = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const queryClient = useQueryClient();
 
-    try {
-      const response = await api.post("/", newNote);
-
-      if (response.statusText === "OK") {
-        addNote(newNote);
-
-        setNewNote({
-          title: "",
-          content: "",
-          priority: "",
-        });
-
-        toast({
-          title: "Note added",
-          description: "Your note has been added successfully.",
-        });
-
-        setIsDialogOpen(false);
-      }
-    } catch (err) {
+  const mutation = useMutation({
+    mutationFn: createNote,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      toast({
+        title: "Note added",
+        description: "Your note has been added successfully.",
+      });
+      setIsDialogOpen(false);
+    },
+    onError: (error) => {
       toast({
         variant: "destructive",
         title: "Error",
         description: "There was an error adding your note.",
       });
-      console.log(err);
-    }
+      console.log(error);
+    },
+  });
+
+  const handleAddNote = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    mutation.mutate(newNote);
   };
 
   return (
